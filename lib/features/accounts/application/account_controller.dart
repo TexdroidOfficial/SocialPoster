@@ -6,6 +6,8 @@ import 'package:uuid/uuid.dart';
 import '../../../core/config/environment.dart';
 import '../../../core/persistence/app_database.dart';
 import '../../../core/security/secret_store.dart';
+import '../../../core/security/token_manager.dart';
+import 'account_link_service.dart';
 import '../domain/account_models.dart';
 
 final environmentProvider = Provider<AppEnvironment>(
@@ -16,6 +18,9 @@ final databaseProvider = Provider<AppDatabase>(
 );
 final secretStoreProvider = Provider<SecretStore>(
   (_) => throw UnimplementedError(),
+);
+final accountLinkServiceProvider = Provider<AccountLinkService>(
+  (ref) => AccountLinkService(environment: ref.read(environmentProvider)),
 );
 
 final accountsProvider =
@@ -30,40 +35,25 @@ class AccountsController extends Notifier<List<ConnectedAccount>> {
     return rows.map(_fromRow).toList();
   }
 
-  Future<void> addDemoAccount(SocialProvider provider) async {
+  Future<void> linkAccount(
+    SocialProvider provider, {
+    LinkCredentials credentials = const LinkCredentials(),
+  }) async {
+    final linked = await ref
+        .read(accountLinkServiceProvider)
+        .link(provider, credentials: credentials);
     final id = const Uuid().v4();
-    final capabilities = switch (provider) {
-      SocialProvider.youtube => const ProviderCapabilities(
-        videos: true,
-        thumbnail: true,
-      ),
-      SocialProvider.instagram => const ProviderCapabilities(
-        images: true,
-        videos: true,
-        carousel: true,
-        requiresPublicUrl: true,
-      ),
-      SocialProvider.tiktok => const ProviderCapabilities(
-        images: true,
-        videos: true,
-        videoTransfer: true,
-        photoTransfer: true,
-      ),
-      SocialProvider.bluesky => const ProviderCapabilities(
-        images: true,
-        videos: true,
-        carousel: true,
-      ),
-    };
     final account = ConnectedAccount(
       id: id,
-      provider: provider,
-      providerAccountId: 'local-demo-$id',
-      label: '${provider.label} demo account',
+      provider: linked.provider,
+      providerAccountId: linked.providerAccountId,
+      label: linked.label,
       secretRef: 'account/$id',
-      capabilities: capabilities,
+      capabilities: linked.capabilities,
+      serviceEndpoint: linked.serviceEndpoint,
     );
-    await ref.read(secretStoreProvider).write(account.secretRef, 'demo-token');
+    await TokenManager(ref.read(secretStoreProvider))
+        .write(account.secretRef, linked.tokens);
     ref
         .read(databaseProvider)
         .insertAccount(
@@ -73,9 +63,10 @@ class AccountsController extends Notifier<List<ConnectedAccount>> {
             'provider_account_id': account.providerAccountId,
             'label': account.label,
             'secret_ref': account.secretRef,
-            'capabilities': jsonEncode(_capabilityMap(capabilities)),
+            'capabilities': jsonEncode(_capabilityMap(linked.capabilities)),
             'status': account.status.name,
             'last_validated_at': DateTime.now().toIso8601String(),
+            'service_endpoint': account.serviceEndpoint,
           },
         );
     state = [...state, account];
@@ -83,6 +74,7 @@ class AccountsController extends Notifier<List<ConnectedAccount>> {
 
   Future<void> disconnect(ConnectedAccount account) async {
     await ref.read(secretStoreProvider).delete(account.secretRef);
+    ref.read(databaseProvider).deleteAccount(account.id);
     state = state.where((item) => item.id != account.id).toList();
   }
 
@@ -105,6 +97,7 @@ class AccountsController extends Notifier<List<ConnectedAccount>> {
         videoTransfer: capabilities['videoTransfer'] as bool? ?? false,
         photoTransfer: capabilities['photoTransfer'] as bool? ?? false,
       ),
+      serviceEndpoint: row['service_endpoint'] as String?,
       status: AccountStatus.values.byName(row['status']! as String),
       lastValidatedAt: row['last_validated_at'] == null
           ? null

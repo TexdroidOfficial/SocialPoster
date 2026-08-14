@@ -34,9 +34,14 @@ class AppDatabase {
       CREATE TABLE IF NOT EXISTS accounts (
         id TEXT PRIMARY KEY, provider TEXT NOT NULL, provider_account_id TEXT NOT NULL,
         label TEXT NOT NULL, secret_ref TEXT NOT NULL, capabilities TEXT NOT NULL,
-        status TEXT NOT NULL, last_validated_at TEXT
+        status TEXT NOT NULL, last_validated_at TEXT, service_endpoint TEXT
       )
     ''');
+    try {
+      _db.execute('ALTER TABLE accounts ADD COLUMN service_endpoint TEXT');
+    } on SqliteException {
+      // Existing databases already have the column.
+    }
     _db.execute('''
       CREATE TABLE IF NOT EXISTS assets (
         id TEXT PRIMARY KEY, path TEXT NOT NULL, kind TEXT NOT NULL, mime TEXT NOT NULL,
@@ -62,12 +67,16 @@ class AppDatabase {
 
   void insertAccount({required Map<String, Object?> values}) {
     _db.execute('''INSERT OR REPLACE INTO accounts
-      (id, provider, provider_account_id, label, secret_ref, capabilities, status, last_validated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', values.values.toList());
+      (id, provider, provider_account_id, label, secret_ref, capabilities, status, last_validated_at, service_endpoint)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', values.values.toList());
   }
 
   List<Map<String, Object?>> accounts() =>
       _db.select('SELECT * FROM accounts ORDER BY label').map(_row).toList();
+
+  void deleteAccount(String id) {
+    _db.execute('DELETE FROM accounts WHERE id = ?', [id]);
+  }
 
   void insertJob({required Map<String, Object?> values}) {
     _db.execute(

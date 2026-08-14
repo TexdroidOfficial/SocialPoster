@@ -39,6 +39,7 @@ class ConnectedAccount {
     required this.label,
     required this.secretRef,
     required this.capabilities,
+    this.serviceEndpoint,
     this.status = AccountStatus.connected,
     this.lastValidatedAt,
   });
@@ -49,6 +50,7 @@ class ConnectedAccount {
   final String label;
   final String secretRef;
   final ProviderCapabilities capabilities;
+  final String? serviceEndpoint;
   final AccountStatus status;
   final DateTime? lastValidatedAt;
 }

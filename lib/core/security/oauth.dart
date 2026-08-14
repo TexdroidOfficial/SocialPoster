@@ -16,6 +16,9 @@ class OAuthProviderConfig {
     required this.scopes,
     this.fixedRedirectUri,
     this.usePkce = true,
+    this.clientSecret,
+    this.authorizationParameters = const {},
+    this.tokenParameters = const {},
   });
 
   final Uri authorizationEndpoint;
@@ -24,6 +27,9 @@ class OAuthProviderConfig {
   final List<String> scopes;
   final Uri? fixedRedirectUri;
   final bool usePkce;
+  final String? clientSecret;
+  final Map<String, String> authorizationParameters;
+  final Map<String, String> tokenParameters;
 }
 
 class OAuthTokens {
@@ -61,9 +67,7 @@ class OAuthFlow {
   }) async {
     final state = _randomString(32);
     final verifier = _randomString(64);
-    final server = config.fixedRedirectUri == null
-        ? await HttpServer.bind(InternetAddress.loopbackIPv4, 0)
-        : null;
+    final server = await _bindCallbackServer(config.fixedRedirectUri);
     final redirect =
         config.fixedRedirectUri ??
         Uri.parse('http://127.0.0.1:${server!.port}/oauth/callback');
@@ -71,6 +75,7 @@ class OAuthFlow {
       final authorizationUri = config.authorizationEndpoint.replace(
         queryParameters: {
           ...config.authorizationEndpoint.queryParameters,
+          ...config.authorizationParameters,
           'client_id': config.clientId,
           'response_type': 'code',
           'redirect_uri': redirect.toString(),
@@ -112,6 +117,20 @@ class OAuthFlow {
     } finally {
       await server?.close(force: true);
     }
+  }
+
+  Future<HttpServer?> _bindCallbackServer(Uri? fixedRedirectUri) async {
+    if (fixedRedirectUri == null) {
+      return HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    }
+    if (fixedRedirectUri.scheme == 'http' &&
+        fixedRedirectUri.host == '127.0.0.1') {
+      return HttpServer.bind(
+        InternetAddress.loopbackIPv4,
+        fixedRedirectUri.port,
+      );
+    }
+    return null;
   }
 
   Future<OAuthCallbackResult> _awaitCallback(
@@ -180,6 +199,9 @@ class OAuthFlow {
             'code': code,
             'redirect_uri': redirect.toString(),
             'client_id': config.clientId,
+            ...config.tokenParameters,
+            if (config.clientSecret != null)
+              'client_secret': config.clientSecret!,
             if (config.usePkce) 'code_verifier': verifier,
           },
         ).query,

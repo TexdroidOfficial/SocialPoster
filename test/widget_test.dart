@@ -19,7 +19,8 @@ void main() {
         child: const SocialPublisherApp(),
       ),
     );
-    expect(find.text('Publish workspace'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.text('Social Poster'), findsOneWidget);
     expect(
       find.text('No accounts connected yet. Add them from Accounts.'),
       findsOneWidget,
