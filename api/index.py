@@ -170,7 +170,7 @@ async def profile(provider: str, tokens: dict) -> dict:
 
 
 @app.get("/api/start/{provider}")
-async def start(provider: str, redirect_uri: str = Query(...)):
+async def start(provider: str, redirect_uri: str = f"http://127.0.0.1:{os.getenv('OAUTH_CALLBACK_PORT', '8080')}/callback"):
     validate_provider(provider)
     validate_redirect(redirect_uri)
     state = state_value(provider, redirect_uri)
