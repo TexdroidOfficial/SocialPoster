@@ -8,22 +8,20 @@ import 'package:uuid/uuid.dart';
 import '../../features/media/domain/media_models.dart';
 import '../errors/app_failure.dart';
 
+typedef PickMediaFiles = Future<List<PlatformFile>> Function();
+
 class MediaIntake {
   MediaIntake({this._picker});
 
-  final FilePicker? _picker;
+  final PickMediaFiles? _picker;
 
   Future<List<MediaAsset>> pickAssets() async {
-    final picker = _picker ?? FilePicker.platform;
-    final result = await picker.pickFiles(
-      allowMultiple: true,
-      type: FileType.media,
-    );
-    if (result == null) {
-      return [];
-    }
+    final picker =
+        _picker ??
+        () => FilePicker.pickFiles(allowMultiple: true, type: FileType.media);
+    final result = await picker();
     return Future.wait(
-      result.files
+      result
           .where((file) => file.path != null)
           .map((file) => snapshot(file.path!)),
     );

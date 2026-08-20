@@ -48,7 +48,10 @@ class MediaController extends Notifier<List<MediaAsset>> {
   }
 }
 
-final filePickerProvider = Provider<FilePicker>((_) => FilePicker.platform);
+final filePickerProvider = Provider<PickMediaFiles>(
+  (_) =>
+      () => FilePicker.pickFiles(allowMultiple: true, type: FileType.media),
+);
 
 final mediaStorageRepositoryProvider = Provider<LocalMediaRepository>(
   (_) => LocalMediaRepository(),
