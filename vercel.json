@@ -4,5 +4,10 @@
       "source": "/(.*)",
       "destination": "/api/index.py"
     }
-  ]
+  ],
+  "functions": {
+    "api/**/*.py": {
+      "excludeFiles": "{build/**,.dart_tool/**,.pub-cache/**,linux/**,windows/**,macos/**,android/**,ios/**,web/**}"
+    }
+  }
 }
