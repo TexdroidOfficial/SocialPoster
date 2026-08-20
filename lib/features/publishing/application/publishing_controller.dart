@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -7,7 +6,6 @@ import 'package:uuid/uuid.dart';
 import '../../../core/concurrency/cancellation.dart';
 import '../../../core/errors/app_failure.dart';
 import '../../../providers/registry.dart';
-import '../../accounts/application/account_controller.dart';
 import '../../accounts/domain/account_models.dart';
 import '../../media/domain/media_models.dart';
 import '../domain/publish_models.dart';
@@ -63,7 +61,7 @@ class PublishingController extends Notifier<PublishingState> {
       createdAt: DateTime.now(),
     );
     state = PublishingState(job: job, isPublishing: true);
-    _persistJob(job);
+    await _persistJob(job);
     final semaphore = AsyncSemaphore(3);
     await Future.wait(
       tasks.map(
@@ -79,7 +77,7 @@ class PublishingController extends Notifier<PublishingState> {
             createdAt: job.createdAt,
           );
           state = PublishingState(job: job, isPublishing: !job.isComplete);
-          _persistTask(result);
+          await _persistTask(result);
         }),
       ),
     );
@@ -96,7 +94,7 @@ class PublishingController extends Notifier<PublishingState> {
   Future<DestinationTask> _runTask(UploadJob job, DestinationTask task) async {
     final adapter = ref.read(providerRegistry).forProvider(task.provider);
     var current = task.copyWith(state: DestinationState.validating);
-    _persistTask(current);
+    await _persistTask(current);
     final preflight = await adapter.preflight(
       account: task.account,
       intent: job.intent,
@@ -151,44 +149,13 @@ class PublishingController extends Notifier<PublishingState> {
     }
   }
 
-  void _persistJob(UploadJob job) {
-    ref
-        .read(databaseProvider)
-        .insertJob(
-          values: {
-            'id': job.id,
-            'caption': job.intent.caption,
-            'created_at': job.createdAt?.toIso8601String(),
-            'state': 'running',
-            'intent_json': jsonEncode({
-              'operationId': job.intent.operationId,
-              'assetIds': job.intent.assets.map((asset) => asset.id).toList(),
-              'videoTitle': job.intent.videoTitle,
-            }),
-          },
-        );
+  Future<void> _persistJob(UploadJob job) async {
     for (final task in job.tasks) {
-      _persistTask(task);
+      await _persistTask(task);
     }
   }
 
-  void _persistTask(DestinationTask task) {
-    ref
-        .read(databaseProvider)
-        .insertDestination(
-          values: {
-            'id': task.id,
-            'job_id': task.jobId,
-            'provider': task.provider.name,
-            'account_id': task.account.id,
-            'state': task.state.name,
-            'phase': task.phase.name,
-            'progress': task.progress,
-            'attempts': task.attempts,
-            'provider_operation_id': task.providerOperationId,
-            'error_kind': task.failure?.kind.name,
-            'error_message': task.failure?.message,
-          },
-        );
+  Future<void> _persistTask(DestinationTask task) async {
+    // Publishing state remains in memory for this local-first desktop app.
   }
 }

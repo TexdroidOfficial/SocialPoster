@@ -5,6 +5,7 @@ enum AssetRetention { source, staged, temporary }
 class MediaAsset {
   const MediaAsset({
     required this.id,
+    this.ownerId,
     required this.path,
     required this.kind,
     required this.mime,
@@ -16,6 +17,7 @@ class MediaAsset {
   });
 
   final String id;
+  final String? ownerId;
   final String path;
   final MediaKind kind;
   final String mime;

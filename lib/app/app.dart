@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/config/environment.dart';
 import '../features/accounts/presentation/accounts_page.dart';
 import '../features/media/presentation/media_page.dart';
 import '../features/publishing/presentation/publishing_page.dart';
@@ -11,13 +12,30 @@ class SocialPublisherApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final environment = ref.watch(appEnvironmentProvider);
     return MaterialApp(
       title: 'Signal Post',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: const AppShell(),
+      home: environment.oauthApiBaseUrl.isNotEmpty
+          ? const AppShell()
+          : const _ConfigurationPage(),
     );
   }
+}
+
+class _ConfigurationPage extends StatelessWidget {
+  const _ConfigurationPage();
+
+  @override
+  Widget build(BuildContext context) => const Scaffold(
+    body: Center(
+      child: Text(
+        'Configure OAUTH_API_BASE_URL for this build.',
+        textAlign: TextAlign.center,
+      ),
+    ),
+  );
 }
 
 class AppShell extends StatefulWidget {
@@ -29,7 +47,6 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _selectedIndex = 0;
-
   static const _pages = [PublishingPage(), MediaPage(), AccountsPage()];
 
   @override

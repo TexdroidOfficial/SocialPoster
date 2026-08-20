@@ -1,23 +1,15 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final appEnvironmentProvider = Provider<AppEnvironment>(
+  (_) => const AppEnvironment(),
+);
+
 class AppEnvironment {
   const AppEnvironment({
-    this.youtubeClientId = const String.fromEnvironment('YOUTUBE_CLIENT_ID'),
-    this.youtubeRedirectUri = const String.fromEnvironment(
-      'YOUTUBE_REDIRECT_URI',
-    ),
-    this.instagramApiVersion = const String.fromEnvironment(
-      'INSTAGRAM_API_VERSION',
-      defaultValue: 'v22.0',
-    ),
-    this.tiktokApiBaseUrl = const String.fromEnvironment(
-      'TIKTOK_API_BASE_URL',
-      defaultValue: 'https://open.tiktokapis.com',
-    ),
-    this.tiktokClientId = const String.fromEnvironment('TIKTOK_CLIENT_ID'),
-    this.tiktokClientSecret = const String.fromEnvironment(
-      'TIKTOK_CLIENT_SECRET',
-    ),
-    this.tiktokRedirectUri = const String.fromEnvironment(
-      'TIKTOK_REDIRECT_URI',
+    this.oauthApiBaseUrl = const String.fromEnvironment('OAUTH_API_BASE_URL'),
+    this.oauthCallbackPort = const int.fromEnvironment(
+      'OAUTH_CALLBACK_PORT',
+      defaultValue: 8080,
     ),
     this.blueskyPds = const String.fromEnvironment(
       'BLUESKY_PDS',
@@ -25,13 +17,8 @@ class AppEnvironment {
     ),
   });
 
-  final String youtubeClientId;
-  final String youtubeRedirectUri;
-  final String instagramApiVersion;
-  final String tiktokApiBaseUrl;
-  final String tiktokClientId;
-  final String tiktokClientSecret;
-  final String tiktokRedirectUri;
+  final String oauthApiBaseUrl;
+  final int oauthCallbackPort;
   final String blueskyPds;
 
   factory AppEnvironment.fromPlatform() => const AppEnvironment();

@@ -51,7 +51,7 @@ class _AccountsPageState extends ConsumerState<AccountsPage> {
         Text('Accounts', style: Theme.of(context).textTheme.headlineLarge),
         const SizedBox(height: 8),
         const Text(
-          'Connect provider accounts locally. Tokens remain in the OS secure store; only account metadata is persisted.',
+          'Authorization opens in your browser. Tokens are stored only in this device\'s secure credential store.',
           style: TextStyle(color: Color(0xffb8adbf)),
         ),
         const SizedBox(height: 24),
@@ -100,18 +100,12 @@ class _LinkAccountDialog extends StatefulWidget {
 }
 
 class _LinkAccountDialogState extends State<_LinkAccountDialog> {
-  final _clientId = TextEditingController();
-  final _clientSecret = TextEditingController();
-  final _redirectUri = TextEditingController();
   final _pds = TextEditingController(text: 'https://bsky.social');
   final _identifier = TextEditingController();
   final _appPassword = TextEditingController();
 
   @override
   void dispose() {
-    _clientId.dispose();
-    _clientSecret.dispose();
-    _redirectUri.dispose();
     _pds.dispose();
     _identifier.dispose();
     _appPassword.dispose();
@@ -120,9 +114,6 @@ class _LinkAccountDialogState extends State<_LinkAccountDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final credentialsRequired =
-        widget.provider == SocialProvider.instagram ||
-        widget.provider == SocialProvider.tiktok;
     final bluesky = widget.provider == SocialProvider.bluesky;
     return AlertDialog(
       title: Text('Link ${widget.provider.label}'),
@@ -135,20 +126,11 @@ class _LinkAccountDialogState extends State<_LinkAccountDialog> {
             children: [
               Text(
                 bluesky
-                    ? 'Use a Bluesky app password. Your password is stored only in the operating system secure store.'
-                    : credentialsRequired
-                    ? 'Enter the app credentials registered with the provider. They are stored only in the operating system secure store.'
-                    : 'Your system browser will open for secure authorization. The callback is validated locally before tokens are stored.',
+                    ? 'Use a Bluesky app password. It is sent directly over HTTPS and stored only in this device\'s secure credential store.'
+                    : 'Your system browser will open for authorization. Vercel exchanges the authorization code and this device stores the tokens securely.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 18),
-              if (credentialsRequired) ...[
-                _field(_clientId, 'Client ID'),
-                const SizedBox(height: 12),
-                _field(_clientSecret, 'Client secret', obscureText: true),
-                const SizedBox(height: 12),
-                _field(_redirectUri, 'Registered redirect URI'),
-              ],
               if (bluesky) ...[
                 _field(_pds, 'PDS service URL'),
                 const SizedBox(height: 12),
@@ -168,9 +150,6 @@ class _LinkAccountDialogState extends State<_LinkAccountDialog> {
         FilledButton(
           onPressed: () => Navigator.of(context).pop(
             LinkCredentials(
-              clientId: _clientId.text,
-              clientSecret: _clientSecret.text,
-              redirectUri: _redirectUri.text,
               pds: _pds.text,
               identifier: _identifier.text,
               appPassword: _appPassword.text,

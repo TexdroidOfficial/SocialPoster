@@ -11,10 +11,11 @@ void main() {
   test('YouTube blocks image-only intents', () async {
     final account = ConnectedAccount(
       id: 'account',
+      ownerId: 'user',
       provider: SocialProvider.youtube,
       providerAccountId: 'channel',
       label: 'Channel',
-      secretRef: 'secret',
+      backendAccountId: 'backend-account',
       capabilities: const ProviderCapabilities(videos: true),
     );
     final asset = MediaAsset(
@@ -40,10 +41,11 @@ void main() {
   test('YouTube requires a video title', () async {
     final account = ConnectedAccount(
       id: 'account',
+      ownerId: 'user',
       provider: SocialProvider.youtube,
       providerAccountId: 'channel',
       label: 'Channel',
-      secretRef: 'secret',
+      backendAccountId: 'backend-account',
       capabilities: const ProviderCapabilities(videos: true),
     );
     final asset = MediaAsset(
@@ -69,10 +71,11 @@ void main() {
   test('Instagram blocks local-only media before network submission', () async {
     final account = ConnectedAccount(
       id: 'account',
+      ownerId: 'user',
       provider: SocialProvider.instagram,
       providerAccountId: 'profile',
       label: 'Profile',
-      secretRef: 'secret',
+      backendAccountId: 'backend-account',
       capabilities: const ProviderCapabilities(
         images: true,
         requiresPublicUrl: true,
@@ -101,10 +104,11 @@ void main() {
   test('job recognizes partial success without rollback', () {
     final account = ConnectedAccount(
       id: 'account',
+      ownerId: 'user',
       provider: SocialProvider.bluesky,
       providerAccountId: 'did:plc:test',
       label: 'Bluesky',
-      secretRef: 'secret',
+      backendAccountId: 'backend-account',
       capabilities: const ProviderCapabilities(images: true),
     );
     final intent = PublishIntent(

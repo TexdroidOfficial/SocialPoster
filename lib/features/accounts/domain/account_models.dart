@@ -34,10 +34,11 @@ class ProviderCapabilities {
 class ConnectedAccount {
   const ConnectedAccount({
     required this.id,
+    required this.ownerId,
     required this.provider,
     required this.providerAccountId,
     required this.label,
-    required this.secretRef,
+    required this.backendAccountId,
     required this.capabilities,
     this.serviceEndpoint,
     this.status = AccountStatus.connected,
@@ -45,10 +46,11 @@ class ConnectedAccount {
   });
 
   final String id;
+  final String ownerId;
   final SocialProvider provider;
   final String providerAccountId;
   final String label;
-  final String secretRef;
+  final String backendAccountId;
   final ProviderCapabilities capabilities;
   final String? serviceEndpoint;
   final AccountStatus status;
