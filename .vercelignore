@@ -1,0 +1,15 @@
+# Ignore Flutter build and cache folders
+build/
+.dart_tool/
+.pub-cache/
+
+# Ignore native desktop/mobile platform folders
+linux/
+windows/
+macos/
+android/
+ios/
+
+# Ignore local Python virtual environments (if you created one)
+venv/
+.venv/
