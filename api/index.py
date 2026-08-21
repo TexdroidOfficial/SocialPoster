@@ -201,9 +201,10 @@ async def callback(provider: str, code: str | None = None, state: str | None = N
         query["error"] = "authorization_failed"
     return RedirectResponse(f"{signed['redirect_uri']}?{urlencode(query)}", status_code=302, headers={"Cache-Control": "no-store"})
 
+@app.get("/tiktok-developers-site-verification.txt/", response_class=PlainTextResponse)
 @app.get("/tiktok-developers-site-verification.txt", response_class=PlainTextResponse)
 async def tiktok_verify():
-    return "tiktok-developers-site-verification=hcCZD4P3AY59kjOMJXmW99AjBujvcF8H"
+    return "tiktok-developers-site-verification=uTmlO0JbHI1Y0nepHQDQgaydkHkaIDug"
 
 @app.get("/tos", response_class=HTMLResponse)
 async def terms_of_service():
