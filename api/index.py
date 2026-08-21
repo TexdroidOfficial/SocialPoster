@@ -235,7 +235,7 @@ async def root():
     return """
     <html>
         <head>
-            <meta name="tiktok-developers-site-verification" content="hcCZD4P3AY59kjOMJXmW99AjBujvcF8H" />
+            <meta name="tiktok-developers-site-verification" content="uTmlO0JbHI1Y0nepHQDQgaydkHkaIDug" />
             <title>Social Poster API</title>
         </head>
         <body>
