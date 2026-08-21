@@ -229,3 +229,19 @@ async def privacy_policy():
         </body>
     </html>
     """
+    
+@app.get("/", response_class=HTMLResponse)
+async def root():
+    return """
+    <html>
+        <head>
+            <meta name="tiktok-developers-site-verification" content="hcCZD4P3AY59kjOMJXmW99AjBujvcF8H" />
+            <title>Social Poster API</title>
+        </head>
+        <body>
+            <h1>Social Poster API is running.</h1>
+            <!-- Adding the raw text here just in case their scraper is lazy -->
+            tiktok-developers-site-verification=uTmlO0JbHI1Y0nepHQDQgaydkHkaIDug
+        </body>
+    </html>
+    """
