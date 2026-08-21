@@ -9,7 +9,8 @@ from urllib.parse import urlencode, urlparse
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, PlainTextResponse, HTMLResponse
+
 
 app = FastAPI(docs_url=None, redoc_url=None)
 
@@ -199,3 +200,31 @@ async def callback(provider: str, code: str | None = None, state: str | None = N
     except HTTPException:
         query["error"] = "authorization_failed"
     return RedirectResponse(f"{signed['redirect_uri']}?{urlencode(query)}", status_code=302, headers={"Cache-Control": "no-store"})
+
+@app.get("/tiktok-developers-site-verification.txt", response_class=PlainTextResponse)
+async def tiktok_verify():
+    return "tiktok-developers-site-verification=RmcjLuHHlbzwwkG1I32LHLOULgzJPh8a"
+
+@app.get("/tos", response_class=HTMLResponse)
+async def terms_of_service():
+    return """
+    <html>
+        <head><title>Terms of Service</title></head>
+        <body>
+            <h1>Terms of Service</h1>
+            <p>This is a standard desktop application. By using this app, you agree to standard terms of service.</p>
+        </body>
+    </html>
+    """
+
+@app.get("/privacy", response_class=HTMLResponse)
+async def privacy_policy():
+    return """
+    <html>
+        <head><title>Privacy Policy</title></head>
+        <body>
+            <h1>Privacy Policy</h1>
+            <p>This application respects your privacy. Authentication tokens are stored securely on your local device and are not shared with third parties.</p>
+        </body>
+    </html>
+    """
