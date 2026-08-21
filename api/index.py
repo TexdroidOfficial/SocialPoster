@@ -201,8 +201,8 @@ async def callback(provider: str, code: str | None = None, state: str | None = N
         query["error"] = "authorization_failed"
     return RedirectResponse(f"{signed['redirect_uri']}?{urlencode(query)}", status_code=302, headers={"Cache-Control": "no-store"})
 
-@app.get("/tiktok-developers-site-verification.txt/", response_class=PlainTextResponse)
-@app.get("/tiktok-developers-site-verification.txt", response_class=PlainTextResponse)
+# The path must exactly match the file name TikTok is requesting
+@app.get("/tiktokuTmlO0JbHI1Y0nepHQDQgaydkHkaIDug.txt", response_class=PlainTextResponse)
 async def tiktok_verify():
     return "tiktok-developers-site-verification=uTmlO0JbHI1Y0nepHQDQgaydkHkaIDug"
 
@@ -229,19 +229,4 @@ async def privacy_policy():
         </body>
     </html>
     """
-    
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    return """
-    <html>
-        <head>
-            <meta name="tiktok-developers-site-verification" content="uTmlO0JbHI1Y0nepHQDQgaydkHkaIDug" />
-            <title>Social Poster API</title>
-        </head>
-        <body>
-            <h1>Social Poster API is running.</h1>
-            <!-- Adding the raw text here just in case their scraper is lazy -->
-            tiktok-developers-site-verification=uTmlO0JbHI1Y0nepHQDQgaydkHkaIDug
-        </body>
-    </html>
-    """
+
