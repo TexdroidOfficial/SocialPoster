@@ -203,7 +203,7 @@ async def callback(provider: str, code: str | None = None, state: str | None = N
 
 @app.get("/tiktok-developers-site-verification.txt", response_class=PlainTextResponse)
 async def tiktok_verify():
-    return "tiktok-developers-site-verification=RmcjLuHHlbzwwkG1I32LHLOULgzJPh8a"
+    return "tiktok-developers-site-verification=hcCZD4P3AY59kjOMJXmW99AjBujvcF8H"
 
 @app.get("/tos", response_class=HTMLResponse)
 async def terms_of_service():
